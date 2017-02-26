@@ -1,0 +1,65 @@
+{
+  "name": "hackernews-to-json",
+  "version": "1.0.0",
+  "description": "Output top Hacker News posts to STDOUT as JSON",
+  "license": "MIT",
+  "repository": "",
+  "main": "index.js",
+  "author": {
+    "name": "Timothy Stott",
+    "url": "github.com/timstott"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "files": [
+    "dist",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "jest",
+    "coverage": "npm test -- --coverage",
+    "postcoverage": "opn coverage/lcov-report/index.html",
+    "lint": "eslint src test",
+    "clean": "del dist",
+    "prebuild": "npm run clean",
+    "build": "babel src -d dist",
+    "watch": "npm-watch",
+    "patch": "npm version patch && npm publish",
+    "minor": "npm version minor && npm publish",
+    "major": "npm version major && npm publish",
+    "prepublish": "npm run lint && npm test && npm run build",
+    "postpublish": "git push origin master --follow-tags"
+  },
+  "watch": {
+    "test": "{src,test}/*.js",
+    "lint": "{src,test}/*.js",
+    "build": "src"
+  },
+  "jest": {
+    "testRegex": "/test/.*",
+    "testEnvironment": "node"
+  },
+  "keywords": [
+    "hackernews"
+  ],
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-eslint": "^7.1.1",
+    "babel-jest": "^18.0.0",
+    "babel-preset-env": "^1.1.8",
+    "babel-preset-stage-2": "^6.18.0",
+    "del-cli": "^0.2.1",
+    "eslint": "^3.14.0",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "jest-cli": "^19.0.1",
+    "nock": "^9.0.7",
+    "npm-watch": "^0.1.7",
+    "opn-cli": "^3.1.0"
+  }
+}
