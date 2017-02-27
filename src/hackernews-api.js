@@ -1,4 +1,4 @@
-import { range, flatMap } from 'lodash'
+import { some, trim, range, flatMap, isEmpty } from 'lodash'
 import https from 'https'
 import $ from 'cheerio'
 
@@ -52,6 +52,18 @@ const pageToHtmlPosts = (page) => {
   return $titleRows.map((i, el) => [[$(el), $(el).next()]]).get()
 }
 
+const isValidPostObject = post => (
+  !some([
+    isEmpty(trim(post.uri)),
+    isEmpty(trim(post.author)),
+    (post.points < 0),
+    (post.comments < 0),
+    (post.rank < 0),
+    (post.title.length > 255),
+    (post.author.length > 255)
+  ])
+)
+
 const fetchPosts = limit => new Promise((resolve) => {
   const lastPage = Math.ceil(limit / MAX_POSTS_PER_PAGE)
 
@@ -60,9 +72,14 @@ const fetchPosts = limit => new Promise((resolve) => {
     .map(pageUrl => makeGetRequest(pageUrl))
 
   const posts = Promise.all(requests)
-    .then(pages => flatMap(pages, pageToHtmlPosts).map(htmlPostToObject).slice(0, limit))
+    .then(pages => (
+      flatMap(pages, pageToHtmlPosts)
+      .map(htmlPostToObject)
+      .filter(isValidPostObject)
+      .slice(0, limit))
+    )
 
   resolve(posts)
 })
 
-export { fetchPosts, htmlPostToObject }
+export { fetchPosts, htmlPostToObject, isValidPostObject }

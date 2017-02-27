@@ -1,4 +1,4 @@
-import { last } from 'lodash'
+import { repeat, last } from 'lodash'
 import { readFileSync } from 'fs'
 import nock from 'nock'
 import $ from 'cheerio'
@@ -8,10 +8,10 @@ describe('fetchPosts', () => {
   const page1 = readFileSync('./test/fixtures/hackernews-page-01.html')
   const scope = nock('https://news.ycombinator.com')
 
-  beforeEach(() => {
-    scope.get('/news?p=1').reply(200, page1)
-  })
   describe('when posts scope a single page', () => {
+    beforeEach(() => {
+      scope.get('/news?p=1').reply(200, page1)
+    })
     it('resovles with a list of posts', () => api.fetchPosts(3).then((result) => {
       expect(nock.isDone()).toEqual(true)
       expect(result).toEqual([
@@ -46,6 +46,7 @@ describe('fetchPosts', () => {
   describe('when posts scope multiple pages', () => {
     const page2 = readFileSync('./test/fixtures/hackernews-page-02.html')
     beforeEach(() => {
+      scope.get('/news?p=1').reply(200, page1)
       scope.get('/news?p=2').reply(200, page2)
     })
     it('resovles with a list of posts', () => api.fetchPosts(55).then((result) => {
@@ -59,6 +60,19 @@ describe('fetchPosts', () => {
         title: 'Kim Jong-Nam Was Killed by VX Nerve Agent, Malaysians Say',
         uri: 'https://www.nytimes.com/2017/02/23/world/asia/kim-jong-nam-vx-nerve-agent-.html'
       })
+    }))
+  })
+
+  describe('when a post is invalid', () => {
+    const pageWithInvalidPosts = readFileSync('./test/fixtures/hackernews-page-with-invalid-posts.html')
+    beforeEach(() => {
+      scope.get('/news?p=1').reply(200, pageWithInvalidPosts)
+    })
+    it('resovles with a list of posts without invalid posts', () => api.fetchPosts(5).then((result) => {
+      expect(nock.isDone()).toEqual(true)
+      expect(result[0].rank).toEqual(2)
+      expect(result[1].rank).toEqual(4)
+      expect(result[2].rank).toEqual(6)
     }))
   })
 })
@@ -95,5 +109,56 @@ describe('htmlPostToObject', () => {
       title: 'Bees can train each other to use tools',
       uri: 'https://arstechnica.com/science/2017/02/bees-can-train-each-other-to-use-tools/'
     })
+  })
+})
+
+describe('isValidatePostObject', () => {
+  const validPost = {
+    author: 'tambourine_man',
+    comments: 49,
+    points: 207,
+    rank: 31,
+    title: 'Bees can train each other to use tools',
+    uri: 'https://arstechnica.com/science/2017/02/bees-can-train-each-other-to-use-tools/'
+  }
+
+
+  it('is true when the post is valid', () => {
+    expect(api.isValidPostObject(validPost)).toEqual(true)
+  })
+
+  it('is false when the uri is invalid', () => {
+    const post = Object.assign({}, validPost, { uri: '' })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when the author is empty', () => {
+    const post = Object.assign({}, validPost, { author: ' ' })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when points is not a positive int', () => {
+    const post = Object.assign({}, validPost, { points: -1 })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when comments is not a positive int', () => {
+    const post = Object.assign({}, validPost, { comments: -1 })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when rank is not a positive int', () => {
+    const post = Object.assign({}, validPost, { rank: -1 })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when title is > 255 chars', () => {
+    const post = Object.assign({}, validPost, { title: repeat('X', 256) })
+    expect(api.isValidPostObject(post)).toEqual(false)
+  })
+
+  it('is false when autho is > 255 chars', () => {
+    const post = Object.assign({}, validPost, { author: repeat('X', 256) })
+    expect(api.isValidPostObject(post)).toEqual(false)
   })
 })
