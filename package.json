@@ -1,5 +1,5 @@
 {
-  "name": "hackernews-to-json",
+  "name": "hackernews",
   "version": "1.0.0",
   "description": "Output top Hacker News posts to STDOUT as JSON",
   "license": "MIT",
@@ -8,6 +8,13 @@
   "author": {
     "name": "Timothy Stott",
     "url": "github.com/timstott"
+  },
+  "bin": {
+    "hackernews": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/timstott/hackernews.git"
   },
   "engines": {
     "node": ">=6"
@@ -45,7 +52,8 @@
   ],
   "dependencies": {
     "cheerio": "^0.22.0",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "minimist": "^1.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",

@@ -8,6 +8,7 @@
   },
   "rules": {
     "semi": [2, never],
-    "comma-dangle": 0
+    "comma-dangle": 0,
+    "no-console": 0
   }
 }
