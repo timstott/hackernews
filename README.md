@@ -2,6 +2,18 @@
 
 Output top Hacker News posts to STDOUT as JSON
 
+## Installation
+
+Requirements
+- NodeJS >= 6
+- npm >= 3.10
+
+```
+git clone git://github.com/timstott/hackernews.git && cd hackernews
+npm install
+npm install -g
+```
+
 ## Usage
 
 ```
@@ -25,5 +37,13 @@ hackernews --posts 3
     title: 'Popularity of Sony’s PlayStation VR Surprises Even the Company',
     uri: 'https://www.nytimes.com/2017/02/26/business/sony-playstation-vr-sales.html' } ]
 ```
+
 ## Roadmap
+
 - Logging
+
+## Dependencies
+
+- Cheerio to parse and select HTML elements
+- Minimist to parse arguments passed
+- Lodash to compensate for the missing sequence operations in JavaScript stdlib
